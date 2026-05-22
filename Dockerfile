@@ -5,18 +5,26 @@ FROM node:22-alpine AS asset-builder
 
 WORKDIR /app
 
+# ------------------------------------------------
 # Copy package files
+# ------------------------------------------------
 COPY package.json package-lock.json* ./
 
-# Install dependencies
+# ------------------------------------------------
+# Install Node dependencies
+# ------------------------------------------------
 RUN npm ci || npm install
 
+# ------------------------------------------------
 # Copy frontend resources
+# ------------------------------------------------
 COPY vite.config.js* tailwind.config.js* postcss.config.js* jsconfig.json* tsconfig.json* ./
 COPY resources ./resources
 COPY public ./public
 
+# ------------------------------------------------
 # Build Vite assets
+# ------------------------------------------------
 RUN npm run build
 
 # ==========================================
@@ -89,9 +97,9 @@ RUN { \
     } > /usr/local/etc/php/conf.d/opcache.ini
 
 # ------------------------------------------------
-# Copy Composer Files
+# Copy Full Application
 # ------------------------------------------------
-COPY composer.json composer.lock* ./
+COPY . .
 
 # ------------------------------------------------
 # Install PHP Dependencies
@@ -104,17 +112,12 @@ RUN composer install \
     --optimize-autoloader
 
 # ------------------------------------------------
-# Copy Application Files
-# ------------------------------------------------
-COPY . .
-
-# ------------------------------------------------
 # Copy Built Frontend Assets
 # ------------------------------------------------
 COPY --from=asset-builder /app/public/build ./public/build
 
 # ------------------------------------------------
-# Laravel Cache Directories
+# Create Laravel Directories
 # ------------------------------------------------
 RUN mkdir -p \
     storage/framework/cache \
