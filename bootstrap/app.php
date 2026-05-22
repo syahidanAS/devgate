@@ -11,6 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
@@ -21,6 +23,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'payment/webhook',
         ]);
+
+        $middleware->appendToGroup('web', function (\Illuminate\Http\Request $request, \Closure $next) {
+            if (config('app.env') === 'staging' && !$request->secure()) {
+                return redirect()->secure($request->getRequestUri());
+            }
+            return $next($request);
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
