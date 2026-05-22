@@ -9,10 +9,13 @@ services:
     container_name: devgate_app
     restart: unless-stopped
     working_dir: /var/www/devgate
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
     env_file:
       - .env
+
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
@@ -23,9 +26,14 @@ services:
       CACHE_STORE: redis
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
+
     depends_on:
       redis:
         condition: service_healthy
+
+    volumes:
+      - /var/www/devgate:/var/www/devgate
+
     networks:
       - devgate_net
 
@@ -36,12 +44,17 @@ services:
     image: nginx:alpine
     container_name: devgate_web
     restart: unless-stopped
+
     ports:
       - "3007:80"
+
     depends_on:
       - app
+
     volumes:
-      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/www/devgate/docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - /var/www/devgate:/var/www/devgate:ro
+
     networks:
       - devgate_net
 
@@ -52,14 +65,18 @@ services:
     image: redis:alpine
     container_name: devgate_redis
     restart: unless-stopped
+
     command: redis-server --appendonly yes
+
     volumes:
       - redis_data:/data
+
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
+
     networks:
       - devgate_net
 
@@ -70,14 +87,20 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+
     container_name: devgate_queue
     restart: unless-stopped
+
     working_dir: /var/www/devgate
+
     command: php artisan queue:work redis --tries=3 --timeout=90 --sleep=3
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
     env_file:
       - .env
+
     environment:
       APP_ENV: production
       APP_DEBUG: "false"
@@ -88,11 +111,17 @@ services:
       CACHE_STORE: redis
       QUEUE_CONNECTION: redis
       SESSION_DRIVER: redis
+
     depends_on:
       redis:
         condition: service_healthy
+
       app:
         condition: service_started
+
+    volumes:
+      - /var/www/devgate:/var/www/devgate
+
     networks:
       - devgate_net
 
