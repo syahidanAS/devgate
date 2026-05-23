@@ -64,3 +64,10 @@ require __DIR__.'/blog.php';
 require __DIR__.'/marketplace.php';
 require __DIR__.'/cms.php';
 require __DIR__.'/forum.php';
+
+// Public Chat Routes
+Route::prefix('chat')->name('chat.')->group(function () {
+    Route::post('/start', [\App\Http\Controllers\ChatController::class, 'startSession'])->name('start');
+    Route::get('/{session}/messages', [\App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('messages');
+    Route::post('/{session}/message', [\App\Http\Controllers\ChatController::class, 'sendMessage'])->name('send');
+});

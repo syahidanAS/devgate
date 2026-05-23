@@ -575,5 +575,6 @@
             };
         }
         </script>
+        <x-chat-widget />
     </body>
 </html>

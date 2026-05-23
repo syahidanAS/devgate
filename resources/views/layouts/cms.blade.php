@@ -145,6 +145,17 @@
                         </a>
                     @endhasanyrole
 
+                    <!-- LIVE CHAT SECTION -->
+                    @hasanyrole('superadmin|admin-marketplace|author')
+                        <div class="pt-4 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 transition-all duration-300 px-3" :class="{ 'opacity-100': sidebarOpen, 'opacity-0 h-0 py-0 overflow-hidden': !sidebarOpen }">
+                            Dukungan & Chat
+                        </div>
+                        <a href="{{ route('cms.chats.index') }}" class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('cms.chats.*') ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400' : 'text-slate-400 hover:text-white hover:bg-slate-900/60' }}">
+                            <i class="fa-solid fa-comments text-base shrink-0"></i>
+                            <span class="transition-opacity duration-300" :class="{ 'opacity-100': sidebarOpen, 'opacity-0 w-0 pointer-events-none': !sidebarOpen }">Live Chat</span>
+                        </a>
+                    @endhasanyrole
+
                     <div class="pt-6 border-t border-slate-800/40"></div>
 
                     <!-- Public Links -->

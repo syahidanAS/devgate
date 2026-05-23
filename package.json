@@ -32,7 +32,9 @@
         "@tiptap/extension-table-row": "^3.23.5",
         "@tiptap/starter-kit": "^3.23.5",
         "highlight.js": "^11.11.1",
+        "laravel-echo": "^1.19.0",
         "lowlight": "^3.3.0",
+        "pusher-js": "^8.5.0",
         "swiper": "^12.1.4"
     }
 }

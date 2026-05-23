@@ -296,5 +296,6 @@
 
 </div>
 
+<x-chat-widget />
 </body>
 </html>
