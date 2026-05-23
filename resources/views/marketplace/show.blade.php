@@ -66,7 +66,7 @@
             </div>
 
             <!-- Right Side: Essential Buy Box & Specifications (Col span 7) -->
-            <div class="lg:col-span-7 flex flex-col gap-6">
+            <div class="lg:col-span-7 flex flex-col gap-6" x-data="productData()">
                 
                 <!-- Core Description Card -->
                 <div class="rounded-3xl border border-slate-200/60 bg-white/70 p-6 sm:p-8 shadow-sm dark:border-slate-800/80 dark:bg-slate-900/40 backdrop-blur-sm flex flex-col gap-4">
@@ -91,14 +91,14 @@
                     <!-- Pricing Info -->
                     <div class="flex items-baseline gap-3 my-2">
                         @if($product->is_on_sale)
-                            <span class="text-sm text-slate-400 line-through">Rp {{ number_format($product->price, 0, ',', '.') }}</span>
+                            <span class="text-sm text-slate-400 line-through" x-show="!selectedVariant || selectedVariant.price === null">Rp <span x-text="formatMoney(baseOriginalPrice)"></span></span>
                         @endif
                         <span class="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white bg-gradient-to-r from-indigo-600 to-violet-600 bg-clip-text text-transparent dark:from-indigo-400 dark:to-indigo-300">
-                            Rp {{ number_format($product->effective_price, 0, ',', '.') }}
+                            Rp <span x-text="formatMoney(currentPrice)">{{ number_format($product->effective_price, 0, ',', '.') }}</span>
                         </span>
                         
                         @if($product->is_on_sale)
-                            <span class="rounded-lg bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600 dark:bg-rose-950/20">
+                            <span class="rounded-lg bg-rose-50 px-2 py-0.5 text-xs font-bold text-rose-600 dark:bg-rose-950/20" x-show="!selectedVariant || selectedVariant.price === null">
                                 Diskon {{ $product->discount_percent }}% OFF
                             </span>
                         @endif
@@ -107,18 +107,28 @@
                     <!-- Inventory & Specs mini logs -->
                     <div class="flex items-center gap-6 text-xs text-slate-500 dark:text-slate-400">
                         <div class="flex items-center gap-1.5">
-                            @if($product->is_available)
-                                @if($product->track_stock && $product->stock <= 5)
-                                    <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
-                                    <span class="text-amber-600 font-bold">Stok kritis (Hanya sisa {{ $product->stock }})</span>
-                                @else
-                                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                                    <span class="text-emerald-600 font-medium">Stok Tersedia ({{ $product->stock }} item)</span>
-                                @endif
-                            @else
-                                <span class="h-2 w-2 rounded-full bg-rose-600"></span>
-                                <span class="text-rose-600 font-bold">Stok Habis</span>
-                            @endif
+                            <template x-if="currentStock > 0">
+                                <div>
+                                    <template x-if="trackStock && currentStock <= 5">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+                                            <span class="text-amber-600 font-bold">Stok kritis (Hanya sisa <span x-text="currentStock"></span>)</span>
+                                        </div>
+                                    </template>
+                                    <template x-if="!trackStock || currentStock > 5">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                                            <span class="text-emerald-600 font-medium">Stok Tersedia (<span x-text="currentStock"></span> item)</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template x-if="currentStock <= 0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="h-2 w-2 rounded-full bg-rose-600"></span>
+                                    <span class="text-rose-600 font-bold">Stok Habis</span>
+                                </div>
+                            </template>
                         </div>
                         <div>&bull;</div>
                         <div>
@@ -130,19 +140,40 @@
                         {{ $product->excerpt }}
                     </p>
 
+                    <!-- Variant Selection -->
+                    <template x-if="hasVariants">
+                        <div class="mt-2 space-y-3">
+                            <h4 class="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">Pilih Varian:</h4>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="variant in variants" :key="variant.id">
+                                    <button 
+                                        type="button" 
+                                        @click="selectVariant(variant)"
+                                        :class="{'ring-2 ring-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800': selectedVariant && selectedVariant.id === variant.id, 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 hover:border-indigo-300': !selectedVariant || selectedVariant.id !== variant.id, 'opacity-50 cursor-not-allowed': variant.stock <= 0}"
+                                        class="px-4 py-2 rounded-xl border text-sm font-medium text-slate-700 dark:text-slate-300 transition-all"
+                                    >
+                                        <span x-text="variant.name"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
                     <!-- Add to Cart Interactive Panel -->
-                    @if($product->is_available)
+                    <div x-show="productAvailable">
                         <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex flex-wrap items-center gap-4 border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-2">
                             @csrf
-                            <div class="flex items-center rounded-xl border border-slate-200 bg-white/50 px-2 dark:border-slate-800 dark:bg-slate-950/40" x-data="{ qty: 1 }">
+                            <input type="hidden" name="product_variant_id" :value="selectedVariant ? selectedVariant.id : ''">
+                            
+                            <div class="flex items-center rounded-xl border border-slate-200 bg-white/50 px-2 dark:border-slate-800 dark:bg-slate-950/40" x-data="{ qty: 1 }" x-effect="if (qty > currentStock && trackStock) qty = currentStock">
                                 <button type="button" @click="if(qty > 1) qty--" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><i class="fa-solid fa-minus text-xs"></i></button>
                                 <input type="number" name="quantity" x-model="qty" readonly class="w-12 text-center text-sm font-bold bg-transparent border-none outline-none focus:ring-0">
-                                <button type="button" @click="if(qty < {{ $product->track_stock ? $product->stock : 99 }}) qty++" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><i class="fa-solid fa-plus text-xs"></i></button>
+                                <button type="button" @click="if(qty < (trackStock ? currentStock : 99)) qty++" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><i class="fa-solid fa-plus text-xs"></i></button>
                             </div>
 
                             <div class="flex gap-2 w-full mt-2">
-                                <button type="submit" class="flex-grow inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-500 transition-all shadow-indigo-600/10">
-                                    <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
+                                <button type="submit" :disabled="!canAddToCart" :class="{'opacity-50 cursor-not-allowed': !canAddToCart}" class="flex-grow inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-500 transition-all shadow-indigo-600/10">
+                                    <i class="fa-solid fa-cart-plus mr-2"></i> <span x-text="hasVariants && !selectedVariant ? 'Pilih Varian Dahulu' : 'Tambah ke Keranjang'"></span>
                                 </button>
                                 
                                 <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-chat-product', { detail: { id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $product->price }}, sale_price: {{ $product->sale_price ?? 'null' }}, slug: '{{ $product->slug }}', media: [{ original_url: '{{ $product->getFirstMediaUrl('product-images') ?: asset('images/product-placeholder.webp') }}' }] } }))" class="flex-shrink-0 inline-flex items-center justify-center rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-indigo-600 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800" title="Tanya Penjual via Chat">
@@ -150,13 +181,13 @@
                                 </button>
                             </div>
                         </form>
-                    @else
-                        <div class="border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-2">
-                            <button type="button" disabled class="w-full flex items-center justify-center rounded-xl bg-slate-100 px-6 py-3 text-sm font-bold text-slate-400 cursor-not-allowed dark:bg-slate-950 dark:text-slate-700">
-                                <i class="fa-solid fa-ban mr-2"></i> Produk Tidak Tersedia / Stok Habis
-                            </button>
-                        </div>
-                    @endif
+                    </div>
+                    
+                    <div x-show="!productAvailable" class="border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-2">
+                        <button type="button" disabled class="w-full flex items-center justify-center rounded-xl bg-slate-100 px-6 py-3 text-sm font-bold text-slate-400 cursor-not-allowed dark:bg-slate-950 dark:text-slate-700">
+                            <i class="fa-solid fa-ban mr-2"></i> Produk Tidak Tersedia / Stok Habis
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Product Specifications Card (Parsed JSON specifications) -->
@@ -241,6 +272,50 @@
                 },
             });
         }
+    });
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('productData', () => ({
+            variants: @json($product->variants),
+            selectedVariant: null,
+            basePrice: {{ $product->effective_price }},
+            baseOriginalPrice: {{ $product->price }},
+            baseStock: {{ $product->stock }},
+            trackStock: {{ $product->track_stock ? 'true' : 'false' }},
+            isAvailable: {{ $product->is_available ? 'true' : 'false' }},
+            
+            get currentPrice() {
+                if (this.selectedVariant && this.selectedVariant.price !== null) return this.selectedVariant.price;
+                return this.basePrice;
+            },
+            get currentOriginalPrice() {
+                if (this.selectedVariant && this.selectedVariant.price !== null) return this.selectedVariant.price;
+                return this.baseOriginalPrice;
+            },
+            get currentStock() {
+                if (this.selectedVariant) return this.selectedVariant.stock;
+                return this.baseStock;
+            },
+            get hasVariants() {
+                return this.variants && this.variants.length > 0;
+            },
+            get canAddToCart() {
+                if (this.hasVariants && !this.selectedVariant) return false;
+                if (this.trackStock && this.currentStock <= 0) return false;
+                return true;
+            },
+            get productAvailable() {
+                if (!this.isAvailable) return false;
+                if (!this.hasVariants && this.trackStock && this.baseStock <= 0) return false;
+                return true;
+            },
+            selectVariant(variant) {
+                if (variant.stock <= 0 && this.trackStock) return;
+                this.selectedVariant = variant;
+            },
+            formatMoney(value) {
+                return new Intl.NumberFormat('id-ID').format(value);
+            }
+        }))
     });
 </script>
 @endsection

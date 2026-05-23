@@ -389,6 +389,75 @@
                 </div>
             </div>
 
+            <!-- Section: Varian Produk (Sub-Jenis) -->
+            <div class="rounded-3xl border border-slate-800/80 bg-slate-950/45 p-6 space-y-5 backdrop-blur-sm" x-data="{ 
+                variants: [],
+                addVariant() {
+                    this.variants.push({ id: '', name: '', price: '', stock: '0', weight: '', sku: '' });
+                },
+                removeVariant(index) {
+                    this.variants.splice(index, 1);
+                }
+            }">
+                <div class="flex items-center justify-between border-b border-slate-800/60 pb-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-layer-group text-indigo-500"></i> Varian Produk
+                    </h3>
+                    <button 
+                        type="button" 
+                        @click="addVariant"
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-[10px] font-bold text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all"
+                    >
+                        <i class="fa-solid fa-plus text-[8px]"></i> Tambah Varian
+                    </button>
+                </div>
+
+                <p class="text-[11px] text-slate-500 leading-relaxed">
+                    Gunakan bagian ini jika produk memiliki sub-jenis (contoh: Male to Male, Warna Merah). Jika varian memiliki harga/berat kosong, sistem akan menggunakan harga/berat utama produk.
+                </p>
+
+                <div class="space-y-4">
+                    <template x-for="(variant, index) in variants" :key="index">
+                        <div class="bg-slate-900/40 p-4 rounded-2xl border border-slate-850 space-y-3 relative">
+                            <button 
+                                type="button" 
+                                @click="removeVariant(index)"
+                                class="absolute top-3 right-3 h-6 w-6 flex items-center justify-center rounded-lg bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white transition-colors"
+                            >
+                                <i class="fa-solid fa-xmark text-xs"></i>
+                            </button>
+                            
+                            <div class="pr-8">
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Nama Varian <span class="text-rose-500">*</span></label>
+                                <input type="text" name="variants_name[]" x-model="variant.name" placeholder="Contoh: Male to Male - Merah" required class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition-all">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Harga (Rp)</label>
+                                    <input type="number" name="variants_price[]" x-model="variant.price" placeholder="Ikut harga utama" min="0" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition-all font-mono">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Stok <span class="text-rose-500">*</span></label>
+                                    <input type="number" name="variants_stock[]" x-model="variant.stock" required min="0" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition-all font-mono">
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">SKU Varian</label>
+                                    <input type="text" name="variants_sku[]" x-model="variant.sku" placeholder="Opsional" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition-all font-mono">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 block">Berat (gram)</label>
+                                    <input type="number" name="variants_weight[]" x-model="variant.weight" placeholder="Ikut berat utama" min="0" class="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition-all font-mono">
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
             <!-- Section: Pricing & Inventory Control -->
             <div class="rounded-3xl border border-slate-800/80 bg-slate-950/45 p-6 space-y-5 backdrop-blur-sm">
                 <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-slate-800/60 pb-3 flex items-center gap-2">

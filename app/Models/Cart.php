@@ -14,6 +14,7 @@ class Cart extends Model
         'user_id',
         'session_id',
         'product_id',
+        'product_variant_id',
         'quantity',
     ];
 
@@ -34,8 +35,14 @@ class Cart extends Model
         return $this->belongsTo(Product::class);
     }
 
+    public function variant(): BelongsTo
+    {
+        return $this->belongsTo(ProductVariant::class, 'product_variant_id');
+    }
+
     public function getSubtotalAttribute(): int
     {
-        return $this->product->effective_price * $this->quantity;
+        $price = $this->variant ? $this->variant->effective_price : $this->product->effective_price;
+        return $price * $this->quantity;
     }
 }

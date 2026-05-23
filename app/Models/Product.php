@@ -88,6 +88,11 @@ class Product extends Model implements HasMedia
         return $this->hasMany(OrderItem::class);
     }
 
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ProductVariant::class);
+    }
+
     // ──────────────────────────────────────────
     // Scopes
     // ──────────────────────────────────────────

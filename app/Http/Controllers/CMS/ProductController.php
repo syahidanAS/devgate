@@ -52,8 +52,14 @@ class ProductController extends Controller
             'meta_description' => 'nullable|string|max:500',
             'specs_key'        => 'nullable|array',
             'specs_val'        => 'nullable|array',
+            'specs_val'        => 'nullable|array',
             'images'           => 'nullable|array',
             'images.*'         => 'image|max:2048',
+            'variants_name'    => 'nullable|array',
+            'variants_price'   => 'nullable|array',
+            'variants_stock'   => 'nullable|array',
+            'variants_weight'  => 'nullable|array',
+            'variants_sku'     => 'nullable|array',
         ]);
 
         // Process specifications into JSON key-values
@@ -94,6 +100,21 @@ class ProductController extends Controller
             }
         }
 
+        // Handle Variants
+        if (!empty($validated['variants_name'])) {
+            foreach ($validated['variants_name'] as $i => $vName) {
+                if (!empty($vName)) {
+                    $product->variants()->create([
+                        'name'   => $vName,
+                        'price'  => isset($validated['variants_price'][$i]) && $validated['variants_price'][$i] !== '' ? $validated['variants_price'][$i] : null,
+                        'stock'  => $validated['variants_stock'][$i] ?? 0,
+                        'weight' => isset($validated['variants_weight'][$i]) && $validated['variants_weight'][$i] !== '' ? $validated['variants_weight'][$i] : null,
+                        'sku'    => $validated['variants_sku'][$i] ?? null,
+                    ]);
+                }
+            }
+        }
+
         return redirect()->route('cms.products.index')->with('success', 'Produk berhasil ditambahkan!');
     }
 
@@ -102,6 +123,7 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        $product->load('variants');
         $categories = ProductCategory::active()->get();
         return view('cms.products.edit', compact('product', 'categories'));
     }
@@ -131,6 +153,12 @@ class ProductController extends Controller
             'specs_val'        => 'nullable|array',
             'images'           => 'nullable|array',
             'images.*'         => 'image|max:2048',
+            'variants_id'      => 'nullable|array',
+            'variants_name'    => 'nullable|array',
+            'variants_price'   => 'nullable|array',
+            'variants_stock'   => 'nullable|array',
+            'variants_weight'  => 'nullable|array',
+            'variants_sku'     => 'nullable|array',
         ]);
 
         $specifications = [];
@@ -166,6 +194,34 @@ class ProductController extends Controller
                 $product->addMedia($image)->toMediaCollection('product-images');
             }
         }
+
+        // Handle Variants
+        $keptVariantIds = [];
+        if (!empty($validated['variants_name'])) {
+            foreach ($validated['variants_name'] as $i => $vName) {
+                if (!empty($vName)) {
+                    $vId = $validated['variants_id'][$i] ?? null;
+                    $variantData = [
+                        'name'   => $vName,
+                        'price'  => isset($validated['variants_price'][$i]) && $validated['variants_price'][$i] !== '' ? $validated['variants_price'][$i] : null,
+                        'stock'  => $validated['variants_stock'][$i] ?? 0,
+                        'weight' => isset($validated['variants_weight'][$i]) && $validated['variants_weight'][$i] !== '' ? $validated['variants_weight'][$i] : null,
+                        'sku'    => $validated['variants_sku'][$i] ?? null,
+                    ];
+                    
+                    if ($vId) {
+                        $product->variants()->where('id', $vId)->update($variantData);
+                        $keptVariantIds[] = $vId;
+                    } else {
+                        $newVariant = $product->variants()->create($variantData);
+                        $keptVariantIds[] = $newVariant->id;
+                    }
+                }
+            }
+        }
+        
+        // Delete variants that were removed
+        $product->variants()->whereNotIn('id', $keptVariantIds)->delete();
 
         return redirect()->route('cms.products.index')->with('success', 'Produk berhasil diperbarui!');
     }

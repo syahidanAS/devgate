@@ -36,17 +36,22 @@
                                                 <div class="flex justify-between text-base font-bold text-slate-900 dark:text-white">
                                                     <h3 class="hover:text-indigo-600 transition-colors truncate max-w-md">
                                                         <a href="{{ route('shop.show', $item->product->slug) }}">{{ $item->product->name }}</a>
+                                                        @if($item->variant)
+                                                            <span class="ml-2 rounded bg-indigo-50 dark:bg-indigo-900/30 px-2 py-0.5 text-[10px] font-bold text-indigo-600 dark:text-indigo-400">
+                                                                Varian: {{ $item->variant->name }}
+                                                            </span>
+                                                        @endif
                                                     </h3>
                                                     <p class="ml-4 text-indigo-600 dark:text-indigo-400">
                                                         Rp {{ number_format($item->subtotal, 0, ',', '.') }}
                                                     </p>
                                                 </div>
                                                 <div class="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500 mt-1">
-                                                    <span>Harga: Rp {{ number_format($item->product->effective_price, 0, ',', '.') }}</span>
+                                                    <span>Harga: Rp {{ number_format($item->variant ? $item->variant->price : $item->product->effective_price, 0, ',', '.') }}</span>
                                                     <span>&bull;</span>
                                                     <span>Merek: {{ $item->product->brand ?? '-' }}</span>
                                                     <span>&bull;</span>
-                                                    <span>Berat: {{ $item->product->weight * $item->quantity }}g</span>
+                                                    <span>Berat: {{ ($item->variant ? $item->variant->effective_weight : $item->product->weight) * $item->quantity }}g</span>
                                                 </div>
                                             </div>
                                             
@@ -59,7 +64,10 @@
                                                     <button type="submit" name="quantity" value="{{ $item->quantity - 1 }}" class="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"><i class="fa-solid fa-minus text-[10px]"></i></button>
                                                     <span class="w-8 text-center text-xs font-bold text-slate-700 dark:text-slate-300">{{ $item->quantity }}</span>
                                                     <!-- Plus -->
-                                                    <button type="submit" name="quantity" value="{{ $item->quantity + 1 }}" class="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" {{ $item->product->track_stock && $item->product->stock <= $item->quantity ? 'disabled' : '' }}><i class="fa-solid fa-plus text-[10px]"></i></button>
+                                                    @php
+                                                        $stockLimit = $item->variant ? $item->variant->stock : $item->product->stock;
+                                                    @endphp
+                                                    <button type="submit" name="quantity" value="{{ $item->quantity + 1 }}" class="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200" {{ $item->product->track_stock && $stockLimit <= $item->quantity ? 'disabled' : '' }}><i class="fa-solid fa-plus text-[10px]"></i></button>
                                                 </form>
 
                                                 <!-- Delete button -->

@@ -27,26 +27,42 @@ class CartService
     public function getItems(): Collection
     {
         if (Auth::check()) {
-            return Cart::where('user_id', Auth::id())->with('product')->get();
+            return Cart::where('user_id', Auth::id())->with(['product', 'variant'])->get();
         }
 
-        return Cart::where('session_id', $this->getSessionId())->with('product')->get();
+        return Cart::where('session_id', $this->getSessionId())->with(['product', 'variant'])->get();
     }
 
     /**
      * Add product to cart.
      */
-    public function add(Product $product, int $quantity = 1): Cart
+    public function add(Product $product, int $quantity = 1, ?int $variantId = null): Cart
     {
         $userId = Auth::id();
         $sessionId = $userId ? null : $this->getSessionId();
 
+        $variant = null;
+        if ($variantId) {
+            $variant = $product->variants()->find($variantId);
+        }
+
         // Validate stock
-        if ($product->track_stock && $product->stock < $quantity) {
-            $quantity = $product->stock;
+        $effectiveStock = $product->stock;
+        if ($variant) {
+            $effectiveStock = $variant->stock;
+        }
+
+        if ($product->track_stock && $effectiveStock < $quantity) {
+            $quantity = $effectiveStock;
         }
 
         $query = Cart::query()->where('product_id', $product->id);
+        
+        if ($variantId) {
+            $query->where('product_variant_id', $variantId);
+        } else {
+            $query->whereNull('product_variant_id');
+        }
 
         if ($userId) {
             $query->where('user_id', $userId);
@@ -58,16 +74,17 @@ class CartService
 
         if ($cartItem) {
             $newQuantity = $cartItem->quantity + $quantity;
-            if ($product->track_stock && $product->stock < $newQuantity) {
-                $newQuantity = $product->stock;
+            if ($product->track_stock && $effectiveStock < $newQuantity) {
+                $newQuantity = $effectiveStock;
             }
             $cartItem->update(['quantity' => $newQuantity]);
         } else {
             $cartItem = Cart::create([
-                'user_id'    => $userId,
-                'session_id' => $sessionId,
-                'product_id' => $product->id,
-                'quantity'   => $quantity,
+                'user_id'            => $userId,
+                'session_id'         => $sessionId,
+                'product_id'         => $product->id,
+                'product_variant_id' => $variantId,
+                'quantity'           => $quantity,
             ]);
         }
 
@@ -93,8 +110,11 @@ class CartService
         }
 
         $product = $cartItem->product;
-        if ($product->track_stock && $product->stock < $quantity) {
-            $quantity = $product->stock;
+        $variant = $cartItem->variant;
+        $effectiveStock = $variant ? $variant->stock : $product->stock;
+
+        if ($product->track_stock && $effectiveStock < $quantity) {
+            $quantity = $effectiveStock;
         }
 
         if ($quantity <= 0) {
@@ -149,7 +169,8 @@ class CartService
 
         foreach ($items as $item) {
             $subtotal += $item->subtotal;
-            $totalWeight += ($item->product->weight * $item->quantity);
+            $weight = $item->variant ? $item->variant->effective_weight : $item->product->weight;
+            $totalWeight += ($weight * $item->quantity);
             $totalQuantity += $item->quantity;
         }
 
@@ -173,12 +194,15 @@ class CartService
             // Check if user already has this product in cart
             $existing = Cart::where('user_id', $userId)
                 ->where('product_id', $item->product_id)
+                ->where('product_variant_id', $item->product_variant_id)
                 ->first();
 
             if ($existing) {
                 $newQty = $existing->quantity + $item->quantity;
-                if ($item->product->track_stock && $item->product->stock < $newQty) {
-                    $newQty = $item->product->stock;
+                $effectiveStock = $item->variant ? $item->variant->stock : $item->product->stock;
+                
+                if ($item->product->track_stock && $effectiveStock < $newQty) {
+                    $newQty = $effectiveStock;
                 }
                 $existing->update(['quantity' => $newQty]);
                 $item->delete();

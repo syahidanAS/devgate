@@ -41,7 +41,13 @@ class CartController extends Controller
             return back()->with('error', 'Produk tidak tersedia atau kehabisan stok.');
         }
 
-        $this->cartService->add($product, $quantity);
+        $variantId = $request->input('product_variant_id') ? (int) $request->input('product_variant_id') : null;
+
+        if ($product->variants()->count() > 0 && !$variantId) {
+            return back()->with('error', 'Silakan pilih varian produk terlebih dahulu.');
+        }
+
+        $this->cartService->add($product, $quantity, $variantId);
 
         if ($request->wantsJson()) {
             return response()->json([

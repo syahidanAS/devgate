@@ -161,19 +161,34 @@ class CheckoutController extends Controller
             foreach ($cartItems as $item) {
                 // Stock validation
                 $product = $item->product;
-                if ($product->track_stock && $product->stock < $item->quantity) {
+                $variant = $item->variant;
+                $effectiveStock = $variant ? $variant->stock : $product->stock;
+
+                if ($product->track_stock && $effectiveStock < $item->quantity) {
                     throw new \Exception("Stok produk {$product->name} tidak mencukupi.");
                 }
 
+                $productName = $product->name;
+                if ($variant) {
+                    $productName .= ' (Varian: ' . $variant->name . ')';
+                }
+
+                $snapshot = $product->toArray();
+                if ($variant) {
+                    $snapshot['variant'] = $variant->toArray();
+                }
+
                 OrderItem::create([
-                    'order_id'         => $order->id,
-                    'product_id'       => $product->id,
-                    'product_name'     => $product->name,
-                    'product_sku'      => $product->sku,
-                    'price'            => $product->effective_price,
-                    'quantity'         => $item->quantity,
-                    'subtotal'         => $item->subtotal,
-                    'product_snapshot' => $product->toArray(),
+                    'order_id'           => $order->id,
+                    'product_id'         => $product->id,
+                    'product_variant_id' => $variant ? $variant->id : null,
+                    'variant_name'       => $variant ? $variant->name : null,
+                    'product_name'       => $productName,
+                    'product_sku'        => $variant ? $variant->sku : $product->sku,
+                    'price'              => $variant ? $variant->price : $product->effective_price,
+                    'quantity'           => $item->quantity,
+                    'subtotal'           => $item->subtotal,
+                    'product_snapshot'   => $snapshot,
                 ]);
             }
 

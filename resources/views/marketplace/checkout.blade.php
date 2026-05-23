@@ -207,7 +207,12 @@
                                     @endif
                                 </div>
                                 <div class="flex-grow min-w-0">
-                                    <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">{{ $item->product->name }}</h4>
+                                    <h4 class="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
+                                        {{ $item->product->name }}
+                                        @if($item->variant)
+                                            <span class="block text-[10px] text-indigo-500 mt-0.5">Varian: {{ $item->variant->name }}</span>
+                                        @endif
+                                    </h4>
                                     <span class="text-[10px] text-slate-400">{{ $item->quantity }} Pcs</span>
                                 </div>
                                 <span class="text-xs font-bold text-slate-700 dark:text-slate-300">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>
