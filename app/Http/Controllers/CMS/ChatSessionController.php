@@ -52,7 +52,7 @@ class ChatSessionController extends Controller
     {
         $query = $request->get('q', '');
         $products = Product::active()
-            ->where('name', 'like', "%{$query}%")
+            ->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($query) . '%'])
             ->with('media')
             ->limit(10)
             ->get();
