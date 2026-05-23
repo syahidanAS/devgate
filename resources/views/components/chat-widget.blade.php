@@ -96,9 +96,25 @@
 
             <!-- Input Area -->
             <div class="p-3 border-t bg-white">
+                <!-- Selected Product Preview -->
+                <template x-if="selectedProduct">
+                    <div class="mb-3 bg-indigo-50 rounded-lg p-2 border border-indigo-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-box text-indigo-500 text-xs"></i>
+                            <div>
+                                <p class="text-[10px] text-indigo-400">Tanya Produk:</p>
+                                <p class="text-xs font-bold text-indigo-900 truncate max-w-[150px]" x-text="selectedProduct.name"></p>
+                            </div>
+                        </div>
+                        <button type="button" @click="selectedProduct = null" class="text-indigo-400 hover:text-rose-500 p-1">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                </template>
+
                 <form @submit.prevent="sendMessage" class="flex items-center space-x-2">
                     <input type="text" x-model="newMessage" placeholder="Ketik pesan..." class="flex-1 rounded-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-4 py-2">
-                    <button type="submit" :disabled="!newMessage.trim() || sending" class="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 disabled:opacity-50">
+                    <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 disabled:opacity-50">
                         <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
                     </button>
                 </form>
@@ -162,8 +178,13 @@
             sending: false,
             echoChannel: null,
             unreadCount: 0,
+            selectedProduct: null,
 
             init() {
+                window.addEventListener('open-chat-product', (e) => {
+                    this.handleProductShare(e.detail);
+                });
+
                 if (this.sessionId) {
                     this.loadMessages();
                     this.listenToPusher();
@@ -178,6 +199,16 @@
                     if (this.sessionId) {
                         setTimeout(() => this.scrollToBottom(), 100);
                     }
+                }
+            },
+
+            handleProductShare(product) {
+                initAudio();
+                this.isOpen = true;
+                this.selectedProduct = product;
+                this.form.category = 'marketplace'; // auto switch to marketplace
+                if (this.sessionId) {
+                    setTimeout(() => this.scrollToBottom(), 100);
                 }
             },
 
@@ -234,7 +265,7 @@
             },
 
             async sendMessage() {
-                if (!this.newMessage.trim() || this.sending) return;
+                if ((!this.newMessage.trim() && !this.selectedProduct) || this.sending) return;
                 
                 const msgText = this.newMessage;
                 this.newMessage = '';
@@ -244,9 +275,14 @@
                 const optimisticMsg = {
                     id: Date.now(),
                     message: msgText,
+                    product: this.selectedProduct,
                     sender_type: this.isAuth ? 'user' : 'guest',
                     created_at: new Date().toISOString()
                 };
+                
+                const productId = this.selectedProduct ? this.selectedProduct.id : null;
+                this.selectedProduct = null;
+                
                 this.messages.push(optimisticMsg);
                 setTimeout(() => this.scrollToBottom(), 10);
 
@@ -257,7 +293,10 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ message: msgText })
+                        body: JSON.stringify({ 
+                            message: msgText,
+                            product_id: productId
+                        })
                     });
                     const data = await response.json();
                     

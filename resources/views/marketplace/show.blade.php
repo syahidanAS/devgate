@@ -140,9 +140,15 @@
                                 <button type="button" @click="if(qty < {{ $product->track_stock ? $product->stock : 99 }}) qty++" class="p-2 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"><i class="fa-solid fa-plus text-xs"></i></button>
                             </div>
 
-                            <button type="submit" class="flex-grow inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-500 transition-all shadow-indigo-600/10">
-                                <i class="fa-solid fa-cart-plus mr-2"></i> Tambahkan ke Keranjang
-                            </button>
+                            <div class="flex gap-2 w-full mt-2">
+                                <button type="submit" class="flex-grow inline-flex items-center justify-center rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-indigo-500 transition-all shadow-indigo-600/10">
+                                    <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
+                                </button>
+                                
+                                <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-chat-product', { detail: { id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $product->price }}, sale_price: {{ $product->sale_price ?? 'null' }}, slug: '{{ $product->slug }}', media: [{ original_url: '{{ $product->getFirstMediaUrl('product-images', 'medium') ?: asset('images/product-placeholder.webp') }}' }] } }))" class="flex-shrink-0 inline-flex items-center justify-center rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-indigo-600 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800" title="Tanya Penjual via Chat">
+                                    <i class="fa-regular fa-message text-lg"></i>
+                                </button>
+                            </div>
                         </form>
                     @else
                         <div class="border-t border-slate-100 dark:border-slate-800/80 pt-6 mt-2">
