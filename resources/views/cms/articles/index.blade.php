@@ -56,7 +56,7 @@
                                 <div class="flex items-center gap-4 max-w-md">
                                     <div class="h-12 w-20 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shrink-0 flex items-center justify-center">
                                         @if($article->thumbnail)
-                                            <img src="{{ asset('storage/' . $article->thumbnail) }}" alt="{{ $article->title }}" class="h-full w-full object-cover">
+                                            <img src="{{ $article->thumbnail_url }}" alt="{{ $article->title }}" class="h-full w-full object-cover">
                                         @else
                                             <div class="text-slate-700 text-lg">
                                                 <i class="fa-solid fa-image"></i>

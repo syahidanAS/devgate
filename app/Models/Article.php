@@ -136,7 +136,7 @@ class Article extends Model implements HasMedia
     public function getThumbnailUrlAttribute(): string
     {
         if ($this->thumbnail) {
-            return asset('storage/' . $this->thumbnail);
+            return \Illuminate\Support\Facades\Storage::disk('s3')->url($this->thumbnail);
         }
 
         return asset('images/article-placeholder.webp');

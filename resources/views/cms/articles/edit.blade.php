@@ -283,7 +283,7 @@
                         <!-- Dropzone container preview -->
                         <div 
                             class="relative rounded-2xl border border-dashed border-slate-800 bg-slate-950/40 p-4 text-center cursor-pointer hover:border-indigo-500/50 transition-all"
-                            x-data="{ preview: '{{ $article->thumbnail ? asset('storage/' . $article->thumbnail) : '' }}' }"
+                            x-data="{ preview: '{{ $article->thumbnail ? $article->thumbnail_url : '' }}' }"
                             @click="$refs.thumbnail_file.click()"
                         >
                             <input 

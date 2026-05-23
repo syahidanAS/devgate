@@ -36,12 +36,12 @@ class ImageProcessingService
         // 4. Encode as WebP with target quality
         $webpEncoded = $img->toWebp($quality);
 
-        // 5. Store on public disk
+        // 5. Store on s3 disk
         $path = $folder . '/' . $cleanName;
-        Storage::disk('public')->put($path, (string) $webpEncoded);
+        Storage::disk('s3')->put($path, (string) $webpEncoded);
 
-        // 6. Return public asset URL
-        return Storage::disk('public')->url($path);
+        // 6. Return s3 asset URL
+        return Storage::disk('s3')->url($path);
     }
 
     /**
@@ -49,10 +49,10 @@ class ImageProcessingService
      */
     public function deleteByUrl(string $url): bool
     {
-        $storagePrefix = Storage::disk('public')->url('');
+        $storagePrefix = Storage::disk('s3')->url('');
         if (str_starts_with($url, $storagePrefix)) {
             $path = str_replace($storagePrefix, '', $url);
-            return Storage::disk('public')->delete($path);
+            return Storage::disk('s3')->delete($path);
         }
         return false;
     }

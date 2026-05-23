@@ -89,9 +89,8 @@ class ArticleController extends Controller
             $article->scheduled_at = null;
         }
 
-        // Handle thumbnail upload using Spatie MediaLibrary
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('thumbnails', 'public');
+            $path = $request->file('thumbnail')->store('thumbnails', 's3');
             $article->thumbnail = $path;
         }
 
@@ -189,7 +188,7 @@ class ArticleController extends Controller
         }
 
         if ($request->hasFile('thumbnail')) {
-            $path = $request->file('thumbnail')->store('thumbnails', 'public');
+            $path = $request->file('thumbnail')->store('thumbnails', 's3');
             $article->thumbnail = $path;
         }
 
