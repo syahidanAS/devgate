@@ -95,26 +95,40 @@
 </div>
 
 <script>
+    // Global Audio Context to fix iOS/Mobile Autoplay restrictions
+    let chatAudioCtx = null;
+
+    function initAudio() {
+        if (!chatAudioCtx) {
+            chatAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (chatAudioCtx.state === 'suspended') {
+            chatAudioCtx.resume();
+        }
+    }
+
     function playWidgetSound() {
+        if (!chatAudioCtx) return; // Silent if not initialized yet
         try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gainNode = ctx.createGain();
+            const osc = chatAudioCtx.createOscillator();
+            const gainNode = chatAudioCtx.createGain();
 
             osc.connect(gainNode);
-            gainNode.connect(ctx.destination);
+            gainNode.connect(chatAudioCtx.destination);
 
             osc.type = 'sine';
-            osc.frequency.setValueAtTime(800, ctx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1200, ctx.currentTime + 0.1);
+            osc.frequency.setValueAtTime(800, chatAudioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, chatAudioCtx.currentTime + 0.1);
 
-            gainNode.gain.setValueAtTime(0, ctx.currentTime);
-            gainNode.gain.linearRampToValueAtTime(0.3, ctx.currentTime + 0.05);
-            gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0, chatAudioCtx.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.3, chatAudioCtx.currentTime + 0.05);
+            gainNode.gain.exponentialRampToValueAtTime(0.001, chatAudioCtx.currentTime + 0.2);
 
-            osc.start(ctx.currentTime);
-            osc.stop(ctx.currentTime + 0.2);
-        } catch (e) {}
+            osc.start(chatAudioCtx.currentTime);
+            osc.stop(chatAudioCtx.currentTime + 0.2);
+        } catch (e) {
+            console.warn('Audio blocked by browser', e);
+        }
     }
 
     document.addEventListener('alpine:init', () => {
@@ -143,6 +157,7 @@
             },
 
             toggle() {
+                initAudio(); // Unlock audio on user interaction
                 this.isOpen = !this.isOpen;
                 if (this.isOpen) {
                     this.unreadCount = 0;
@@ -153,6 +168,7 @@
             },
 
             async startSession() {
+                initAudio(); // Unlock audio on user interaction
                 if (!this.isAuth) {
                     if (!this.form.guest_name || !this.form.guest_email || !this.form.guest_whatsapp) {
                         alert('Mohon lengkapi data diri Anda.');
