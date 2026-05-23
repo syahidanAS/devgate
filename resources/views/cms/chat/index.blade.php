@@ -132,6 +132,7 @@
                                 <p x-text="msg.message"></p>
                                 <span class="text-[10px] opacity-60 mt-2 block" x-text="formatTime(msg.created_at)"></span>
                             </div>
+                            </template>
                         </div>
                     </template>
                     <div x-show="loading" class="text-center text-slate-500 text-sm">Memuat pesan...</div>
