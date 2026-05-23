@@ -69,9 +69,23 @@
             <div class="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3" id="chat-messages-container">
                 <template x-for="msg in messages" :key="msg.id">
                     <div :class="msg.sender_type === 'admin' ? 'flex justify-start' : 'flex justify-end'">
-                        <div :class="msg.sender_type === 'admin' ? 'bg-white text-gray-800 border border-gray-200' : 'bg-indigo-600 text-white'" class="max-w-[80%] rounded-xl px-4 py-2 shadow-sm text-sm">
+                        <div :class="msg.sender_type === 'admin' ? 'bg-white text-gray-800 border border-gray-200' : 'bg-indigo-600 text-white'" class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm text-sm">
+                            <template x-if="msg.product">
+                                <div class="mb-2 bg-gray-50 rounded-xl p-2 border border-gray-200 flex gap-3 items-center">
+                                    <div class="w-12 h-12 rounded-lg bg-gray-200 shrink-0 overflow-hidden">
+                                        <img :src="msg.product.media && msg.product.media[0] ? msg.product.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 overflow-hidden">
+                                        <h4 class="font-bold text-xs truncate text-gray-800" x-text="msg.product.name"></h4>
+                                        <p class="text-xs font-semibold text-indigo-600 mt-0.5" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(msg.product.sale_price ?? msg.product.price)"></p>
+                                    </div>
+                                    <a :href="'/shop/' + msg.product.slug" target="_blank" class="shrink-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition px-2 py-1.5 rounded text-[10px] font-bold">
+                                        Lihat
+                                    </a>
+                                </div>
+                            </template>
                             <p x-text="msg.message"></p>
-                            <span class="text-[10px] opacity-70 mt-1 block" x-text="formatTime(msg.created_at)"></span>
+                            <span :class="msg.sender_type === 'admin' ? 'text-gray-400' : 'text-indigo-200'" class="text-[10px] mt-1.5 block text-right" x-text="formatTime(msg.created_at)"></span>
                         </div>
                     </div>
                 </template>

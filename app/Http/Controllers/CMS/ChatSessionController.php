@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ChatSession;
 use App\Models\ChatSessionMessage;
 use App\Notifications\ChatReplyNotification;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
@@ -43,23 +44,43 @@ class ChatSessionController extends Controller
     public function fetchMessages($sessionId)
     {
         $session = $this->getAuthorizedSession($sessionId);
-        $messages = $session->messages()->with('sender:id,name')->orderBy('created_at', 'asc')->get();
+        $messages = $session->messages()->with(['sender:id,name', 'product.media'])->orderBy('created_at', 'asc')->get();
         return response()->json(['messages' => $messages]);
+    }
+
+    public function searchProducts(Request $request)
+    {
+        $query = $request->get('q', '');
+        $products = Product::active()
+            ->where('name', 'like', "%{$query}%")
+            ->with('media')
+            ->limit(10)
+            ->get();
+            
+        return response()->json(['products' => $products]);
     }
 
     public function reply(Request $request, $sessionId)
     {
         $request->validate([
-            'message' => 'required|string',
+            'message' => 'nullable|string',
+            'product_id' => 'nullable|exists:products,id',
         ]);
+
+        if (empty($request->message) && empty($request->product_id)) {
+            return response()->json(['error' => 'Message or product is required.'], 422);
+        }
 
         $session = $this->getAuthorizedSession($sessionId);
 
         $message = $session->messages()->create([
             'sender_type' => 'admin',
             'sender_id' => Auth::id(),
-            'message' => $request->message,
+            'message' => $request->message ?? '',
+            'product_id' => $request->product_id,
         ]);
+
+        $message->load(['sender:id,name', 'product.media']);
 
         // Broadcast to customer
         broadcast(new NewChatMessage($message))->toOthers();
@@ -73,7 +94,7 @@ class ChatSessionController extends Controller
         // Update session updated_at to bring it to top
         $session->touch();
 
-        return response()->json(['message' => $message->load('sender:id,name')]);
+        return response()->json(['message' => $message]);
     }
 
     private function getAuthorizedSession($sessionId)

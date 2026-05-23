@@ -102,6 +102,20 @@
                     <template x-for="msg in messages" :key="msg.id">
                         <div :class="msg.sender_type === 'admin' ? 'flex justify-end' : 'flex justify-start'">
                             <div :class="msg.sender_type === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'" class="max-w-[70%] rounded-2xl px-5 py-3 shadow-lg text-sm leading-relaxed">
+                                <template x-if="msg.product">
+                                    <div class="mb-3 bg-white/10 rounded-xl p-3 border border-white/20 flex gap-3 items-center">
+                                        <div class="w-12 h-12 rounded-lg bg-slate-200 shrink-0 overflow-hidden">
+                                            <img :src="msg.product.media && msg.product.media[0] ? msg.product.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 overflow-hidden">
+                                            <h4 class="font-bold text-xs truncate" x-text="msg.product.name"></h4>
+                                            <p class="text-xs opacity-90 mt-1" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(msg.product.sale_price ?? msg.product.price)"></p>
+                                        </div>
+                                        <a :href="'/shop/' + msg.product.slug" target="_blank" class="shrink-0 bg-white/20 hover:bg-white/30 transition p-2 rounded-lg text-xs font-bold">
+                                            Lihat
+                                        </a>
+                                    </div>
+                                </template>
                                 <p x-text="msg.message"></p>
                                 <span class="text-[10px] opacity-60 mt-2 block" x-text="formatTime(msg.created_at)"></span>
                             </div>
@@ -111,10 +125,29 @@
                 </div>
 
                 <!-- Input Area -->
-                <div class="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md shrink-0">
+                <div class="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md shrink-0 relative">
+                    <!-- Selected Product Preview -->
+                    <template x-if="selectedProduct">
+                        <div class="mb-3 bg-slate-800 rounded-xl p-3 border border-slate-700 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <i class="fa-solid fa-box text-indigo-400"></i>
+                                <div>
+                                    <p class="text-xs text-slate-400">Melampirkan Produk:</p>
+                                    <p class="text-sm font-bold text-white truncate" x-text="selectedProduct.name"></p>
+                                </div>
+                            </div>
+                            <button type="button" @click="selectedProduct = null" class="text-slate-400 hover:text-red-400 p-2">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </template>
+
                     <form @submit.prevent="sendMessage" class="flex gap-3">
+                        <button type="button" @click="showProductModal = true" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 rounded-xl px-4 flex items-center justify-center transition-all" title="Lampirkan Produk">
+                            <i class="fa-solid fa-bag-shopping"></i>
+                        </button>
                         <input type="text" x-model="newMessage" placeholder="Ketik balasan..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-600">
-                        <button type="submit" :disabled="!newMessage.trim() || sending" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 font-bold flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 font-bold flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fa-solid fa-paper-plane mr-2" x-show="!sending"></i>
                             <i class="fa-solid fa-spinner fa-spin mr-2" x-show="sending" style="display: none;"></i>
                             Kirim
@@ -123,6 +156,39 @@
                 </div>
             </div>
         </template>
+    </div>
+
+    <!-- Product Search Modal -->
+    <div x-show="showProductModal" class="absolute inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm" style="display: none;">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md mx-4 overflow-hidden shadow-2xl flex flex-col max-h-[80vh]" @click.away="showProductModal = false">
+            <div class="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-900">
+                <h3 class="text-white font-bold text-lg">Pilih Produk</h3>
+                <button @click="showProductModal = false" class="text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-4">
+                <div class="relative">
+                    <input type="text" x-model="searchProductQuery" @input.debounce.500ms="searchProducts" placeholder="Cari nama produk..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500 outline-none">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-500"></i>
+                </div>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4 pt-0 space-y-2">
+                <div x-show="searchingProduct" class="text-center text-slate-500 text-sm py-4">Mencari...</div>
+                <template x-for="prod in productResults" :key="prod.id">
+                    <button @click="selectedProduct = prod; showProductModal = false" class="w-full text-left bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl p-3 flex gap-3 items-center transition-all">
+                        <div class="w-12 h-12 rounded-lg bg-slate-800 shrink-0 overflow-hidden">
+                            <img :src="prod.media && prod.media[0] ? prod.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1 overflow-hidden">
+                            <h4 class="font-bold text-sm text-white truncate" x-text="prod.name"></h4>
+                            <p class="text-xs text-indigo-400 mt-0.5" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(prod.sale_price ?? prod.price)"></p>
+                        </div>
+                    </button>
+                </template>
+                <div x-show="!searchingProduct && productResults.length === 0 && searchProductQuery.trim() !== ''" class="text-center text-slate-500 text-sm py-4">Produk tidak ditemukan.</div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -165,6 +231,11 @@
             globalChannels: [],
             toast: { show: false, title: '', message: '' },
             toastTimeout: null,
+            showProductModal: false,
+            searchProductQuery: '',
+            productResults: [],
+            selectedProduct: null,
+            searchingProduct: false,
 
             init() {
                 this.listenToGlobalCategories();
@@ -234,8 +305,24 @@
                 this.loading = false;
             },
 
+            async searchProducts() {
+                if (!this.searchProductQuery.trim()) {
+                    this.productResults = [];
+                    return;
+                }
+                this.searchingProduct = true;
+                try {
+                    const response = await fetch(`/cms/chats/products/search?q=${encodeURIComponent(this.searchProductQuery)}`);
+                    const data = await response.json();
+                    this.productResults = data.products || [];
+                } catch (e) {
+                    console.error('Failed to search products', e);
+                }
+                this.searchingProduct = false;
+            },
+
             async sendMessage() {
-                if (!this.newMessage.trim() || this.sending) return;
+                if ((!this.newMessage.trim() && !this.selectedProduct) || this.sending) return;
 
                 const text = this.newMessage;
                 this.newMessage = '';
@@ -245,9 +332,16 @@
                 const optimisticMsg = {
                     id: 'temp-' + Date.now(),
                     message: text,
+                    product: this.selectedProduct,
                     sender_type: 'admin',
                     created_at: new Date().toISOString()
                 };
+                
+                const productId = this.selectedProduct ? this.selectedProduct.id : null;
+                this.selectedProduct = null;
+                this.searchProductQuery = '';
+                this.productResults = [];
+
                 this.messages.push(optimisticMsg);
                 setTimeout(() => this.scrollToBottom(), 10);
 
@@ -258,7 +352,10 @@
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        body: JSON.stringify({ message: text })
+                        body: JSON.stringify({ 
+                            message: text,
+                            product_id: productId 
+                        })
                     });
                     
                     const data = await response.json();

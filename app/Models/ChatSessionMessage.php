@@ -16,6 +16,7 @@ class ChatSessionMessage extends Model
         'sender_id',
         'message',
         'is_read',
+        'product_id',
     ];
 
     protected function casts(): array
@@ -33,5 +34,10 @@ class ChatSessionMessage extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function product(): BelongsTo
+    {
+        return $this->belongsTo(Product::class, 'product_id');
     }
 }

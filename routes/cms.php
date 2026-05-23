@@ -59,6 +59,7 @@ Route::middleware(['auth', 'verified', '2fa', 'role:superadmin|author|admin-mark
         ->middleware('role:superadmin');
 
     // CMS Chat System (Admins)
+    Route::get('/chats/products/search', [\App\Http\Controllers\CMS\ChatSessionController::class, 'searchProducts'])->name('chats.products.search');
     Route::get('/chats', [\App\Http\Controllers\CMS\ChatSessionController::class, 'index'])->name('chats.index');
     Route::get('/chats/{session}/messages', [\App\Http\Controllers\CMS\ChatSessionController::class, 'fetchMessages'])->name('chats.messages');
     Route::post('/chats/{session}/reply', [\App\Http\Controllers\CMS\ChatSessionController::class, 'reply'])->name('chats.reply');

@@ -47,15 +47,20 @@ class ChatController extends Controller
             abort(403);
         }
 
-        $messages = $session->messages()->with('sender:id,name')->orderBy('created_at', 'asc')->get();
+        $messages = $session->messages()->with(['sender:id,name', 'product.media'])->orderBy('created_at', 'asc')->get();
         return response()->json(['messages' => $messages]);
     }
 
     public function sendMessage(Request $request, $sessionId)
     {
         $request->validate([
-            'message' => 'required|string',
+            'message' => 'nullable|string',
+            'product_id' => 'nullable|exists:products,id',
         ]);
+
+        if (empty($request->message) && empty($request->product_id)) {
+            return response()->json(['error' => 'Message or product is required.'], 422);
+        }
 
         $session = ChatSession::findOrFail($sessionId);
 
@@ -64,8 +69,11 @@ class ChatController extends Controller
         $message = $session->messages()->create([
             'sender_type' => $senderType,
             'sender_id' => Auth::id(),
-            'message' => $request->message,
+            'message' => $request->message ?? '',
+            'product_id' => $request->product_id,
         ]);
+
+        $message->load(['sender:id,name', 'product.media']);
 
         // Broadcast event
         broadcast(new NewChatMessage($message))->toOthers();
@@ -73,6 +81,6 @@ class ChatController extends Controller
         // Send Telegram Notification
         (new AdminTelegramChatNotification($message))->sendToTelegram();
 
-        return response()->json(['message' => $message->load('sender:id,name')]);
+        return response()->json(['message' => $message]);
     }
 }
