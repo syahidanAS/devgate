@@ -78,12 +78,6 @@
 
                         <template x-if="msg.sender_type !== 'system'">
                             <div :class="msg.sender_type === 'admin' ? 'bg-white text-gray-800 border border-gray-200' : 'bg-indigo-600 text-white'" class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm text-sm">
-                            <template x-if="msg.product">
-                                <div class="mb-2 bg-gray-50 rounded-xl p-2 border border-gray-200 flex gap-3 items-center">
-                                    <div class="w-12 h-12 rounded-lg bg-gray-200 shrink-0 overflow-hidden">
-                                        <img :src="msg.product.media && msg.product.media[0] ? msg.product.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 overflow-hidden">
                                 <template x-if="msg.product">
                                     <div class="mb-2 bg-gray-50 rounded-xl p-2 border border-gray-200 flex gap-3 items-center">
                                         <div class="w-12 h-12 rounded-lg bg-gray-200 shrink-0 overflow-hidden">
