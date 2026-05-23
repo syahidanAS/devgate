@@ -13,7 +13,18 @@
 @endsection
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{
+    selectedIds: [],
+    selectAll: false,
+    allIds: {{ $products->pluck('id')->toJson() }},
+    toggleAll() {
+        if (this.selectAll) {
+            this.selectedIds = [...this.allIds];
+        } else {
+            this.selectedIds = [];
+        }
+    }
+}">
 
     <!-- Page Header & Action Controls -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between border-b border-slate-800/60 pb-6 gap-4">
@@ -48,6 +59,19 @@
                 @endif
             </form>
 
+            <template x-if="selectedIds.length > 0">
+                <form action="{{ route('cms.products.bulkDestroy') }}" method="POST" class="w-full sm:w-auto flex" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ' + selectedIds.length + ' produk terpilih?')">
+                    @csrf
+                    @method('DELETE')
+                    <template x-for="id in selectedIds" :key="id">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-rose-600 hover:bg-rose-500 text-xs font-bold text-white shadow-lg shadow-rose-600/25 transition-all w-full sm:w-auto justify-center">
+                        <i class="fa-solid fa-trash-can text-[10px]"></i> Hapus (<span x-text="selectedIds.length"></span>)
+                    </button>
+                </form>
+            </template>
+
             <a 
                 href="{{ route('cms.products.create') }}" 
                 class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white shadow-lg shadow-indigo-600/25 transition-all w-full sm:w-auto justify-center"
@@ -63,6 +87,9 @@
             <table class="w-full text-left text-sm border-collapse">
                 <thead>
                     <tr class="text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-800/60 bg-slate-950/60">
+                        <th class="py-4 px-4 w-10 text-center">
+                            <input type="checkbox" x-model="selectAll" @change="toggleAll()" class="rounded border-slate-700 bg-slate-900/50 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-950">
+                        </th>
                         <th class="py-4 px-6">Informasi Produk</th>
                         <th class="py-4 px-6">SKU & Kategori</th>
                         <th class="py-4 px-6">Harga (IDR)</th>
@@ -74,6 +101,9 @@
                 <tbody class="divide-y divide-slate-850">
                     @forelse($products as $product)
                         <tr class="group hover:bg-slate-900/20 transition-all">
+                            <td class="py-4 px-4 text-center">
+                                <input type="checkbox" :value="{{ $product->id }}" x-model="selectedIds" class="rounded border-slate-700 bg-slate-900/50 text-indigo-500 focus:ring-indigo-500 focus:ring-offset-slate-950">
+                            </td>
                             <!-- Image, Brand & Name -->
                             <td class="py-4 px-6">
                                 <div class="flex items-center gap-4">
@@ -197,7 +227,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="py-12 text-center text-slate-500">
+                            <td colspan="7" class="py-12 text-center text-slate-500">
                                 <div class="flex flex-col items-center justify-center gap-3">
                                     <div class="h-16 w-16 rounded-full bg-slate-900/60 border border-slate-850 flex items-center justify-center text-slate-500 text-xl">
                                         <i class="fa-solid fa-boxes-stacked"></i>

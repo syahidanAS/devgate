@@ -171,6 +171,24 @@ class ProductController extends Controller
     }
 
     /**
+     * Delete multiple products.
+     */
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate([
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:products,id',
+        ]);
+
+        $ids = $request->input('ids');
+        $count = count($ids);
+
+        Product::whereIn('id', $ids)->delete();
+
+        return redirect()->route('cms.products.index')->with('success', "{$count} produk berhasil dihapus.");
+    }
+
+    /**
      * Delete product.
      */
     public function destroy(Product $product)

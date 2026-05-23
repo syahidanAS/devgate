@@ -39,8 +39,10 @@ Route::middleware(['auth', 'verified', '2fa', 'role:superadmin|author|admin-mark
     });
 
     // CMS Products CRUD (Store Managers & Superadmins)
-    Route::resource('products', ProductController::class)
-        ->middleware('role_or_permission:superadmin|admin-marketplace');
+    Route::middleware('role_or_permission:superadmin|admin-marketplace')->group(function () {
+        Route::delete('products/bulk-delete', [ProductController::class, 'bulkDestroy'])->name('products.bulkDestroy');
+        Route::resource('products', ProductController::class);
+    });
 
     // CMS Orders (Store Managers & Superadmins)
     Route::group(['middleware' => 'role_or_permission:superadmin|admin-marketplace'], function () {
