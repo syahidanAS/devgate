@@ -21,11 +21,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'payment/webhook',
         ]);
-
-        $middleware->appendToGroup('web', [
-    \App\Http\Middleware\TrustProxies::class,
-    \App\Http\Middleware\ForceHttpsStaging::class,
-]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

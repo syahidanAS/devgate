@@ -20,10 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (app()->environment('production') || app()->environment('staging') || request()->header('x-forwarded-proto') === 'https') {
-            URL::forceScheme('https');
-        }
-
         // Implicitly grant "superadmin" role all permissions
         // This works in the gate relation which also affects Spatie's @can checks
         \Illuminate\Support\Facades\Gate::before(function ($user, $ability) {
