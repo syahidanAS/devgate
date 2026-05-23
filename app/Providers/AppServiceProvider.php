@@ -20,7 +20,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.env') === 'staging') {
+        if (app()->environment('production') || app()->environment('staging') || request()->header('x-forwarded-proto') === 'https') {
             URL::forceScheme('https');
         }
 
