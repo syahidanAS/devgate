@@ -24,7 +24,7 @@
                                         <!-- Product image -->
                                         <div class="h-20 w-20 flex-shrink-0 overflow-hidden rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
                                             @if($item->product->getFirstMediaUrl('product-images'))
-                                                <img src="{{ $item->product->getFirstMediaUrl('product-images', 'thumbnail') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
+                                                <img src="{{ $item->product->getFirstMediaUrl('product-images') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
                                             @else
                                                 <div class="text-slate-400 dark:text-slate-600"><i class="fa-solid fa-microchip text-xl"></i></div>
                                             @endif

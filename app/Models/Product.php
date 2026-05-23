@@ -59,17 +59,8 @@ class Product extends Model implements HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
-        $this->addMediaConversion('thumbnail')
-            ->width(400)
-            ->height(400)
-            ->format('webp')
-            ->performOnCollections('product-images');
-
-        $this->addMediaConversion('medium')
-            ->width(800)
-            ->height(800)
-            ->format('webp')
-            ->performOnCollections('product-images');
+        // Removed: Product images are no longer compressed to WebP thumbnails/medium variations.
+        // The original image from S3 is used directly.
     }
 
     // ──────────────────────────────────────────

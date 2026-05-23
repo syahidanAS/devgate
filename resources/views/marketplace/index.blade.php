@@ -129,7 +129,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         @foreach($products as $product)
                             @php
-                                $imgUrl = $product->getFirstMediaUrl('product-images', 'thumbnail');
+                                $imgUrl = $product->getFirstMediaUrl('product-images');
                             @endphp
                             <div class="flex flex-col justify-between overflow-hidden rounded-3xl border border-slate-200/60 bg-white/70 p-4 shadow-sm hover:shadow-md dark:border-slate-800/80 dark:bg-slate-900/40 hover:scale-[1.01] transition-all backdrop-blur-sm relative group">
                                 

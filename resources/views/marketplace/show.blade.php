@@ -42,7 +42,7 @@
                                 <div class="swiper-wrapper">
                                     @foreach($images as $img)
                                         <div class="swiper-slide flex items-center justify-center">
-                                            <img src="{{ $img->getUrl('medium') }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
+                                            <img src="{{ $img->getUrl() }}" alt="{{ $product->name }}" class="h-full w-full object-cover">
                                         </div>
                                     @endforeach
                                 </div>
@@ -145,7 +145,7 @@
                                     <i class="fa-solid fa-cart-plus mr-2"></i> Tambah ke Keranjang
                                 </button>
                                 
-                                <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-chat-product', { detail: { id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $product->price }}, sale_price: {{ $product->sale_price ?? 'null' }}, slug: '{{ $product->slug }}', media: [{ original_url: '{{ $product->getFirstMediaUrl('product-images', 'medium') ?: asset('images/product-placeholder.webp') }}' }] } }))" class="flex-shrink-0 inline-flex items-center justify-center rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-indigo-600 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800" title="Tanya Penjual via Chat">
+                                <button type="button" onclick="window.dispatchEvent(new CustomEvent('open-chat-product', { detail: { id: {{ $product->id }}, name: '{{ addslashes($product->name) }}', price: {{ $product->price }}, sale_price: {{ $product->sale_price ?? 'null' }}, slug: '{{ $product->slug }}', media: [{ original_url: '{{ $product->getFirstMediaUrl('product-images') ?: asset('images/product-placeholder.webp') }}' }] } }))" class="flex-shrink-0 inline-flex items-center justify-center rounded-xl bg-white border border-slate-200 px-4 py-3 text-sm font-bold text-indigo-600 hover:bg-slate-50 transition-all dark:bg-slate-900 dark:border-slate-700 dark:hover:bg-slate-800" title="Tanya Penjual via Chat">
                                     <i class="fa-regular fa-message text-lg"></i>
                                 </button>
                             </div>

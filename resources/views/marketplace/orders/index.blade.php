@@ -30,7 +30,7 @@
                             @if($order->items->count() > 0)
                                 <div class="h-16 w-16 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
                                     @if($order->items->first()->product && $order->items->first()->product->getFirstMediaUrl('product-images'))
-                                        <img src="{{ $order->items->first()->product->getFirstMediaUrl('product-images', 'thumbnail') }}" alt="{{ $order->items->first()->product_name }}" class="h-full w-full object-cover">
+                                        <img src="{{ $order->items->first()->product->getFirstMediaUrl('product-images') }}" alt="{{ $order->items->first()->product_name }}" class="h-full w-full object-cover">
                                     @else
                                         <i class="fa-solid fa-box text-slate-400 text-xl"></i>
                                     @endif

@@ -109,7 +109,7 @@
                                 <div class="flex items-center gap-4">
                                     <div class="h-12 w-12 shrink-0 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center relative">
                                         @if($product->hasMedia('product-images'))
-                                            <img src="{{ $product->getFirstMediaUrl('product-images', 'thumbnail') }}" alt="{{ $product->name }}" class="object-cover w-full h-full">
+                                            <img src="{{ $product->getFirstMediaUrl('product-images') }}" alt="{{ $product->name }}" class="object-cover w-full h-full">
                                         @else
                                             <i class="fa-solid fa-microchip text-slate-650 text-lg"></i>
                                         @endif

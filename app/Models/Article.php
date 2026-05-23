@@ -55,22 +55,8 @@ class Article extends Model implements HasMedia
 
     public function registerMediaConversions(?Media $media = null): void
     {
-        $this->addMediaConversion('thumbnail')
-            ->width(400)
-            ->height(300)
-            ->format('webp')
-            ->performOnCollections('thumbnails');
-
-        $this->addMediaConversion('og_image')
-            ->width(1200)
-            ->height(630)
-            ->format('webp')
-            ->performOnCollections('thumbnails');
-
-        $this->addMediaConversion('medium')
-            ->width(800)
-            ->format('webp')
-            ->performOnCollections('thumbnails', 'content');
+        // Removed: Article images are no longer compressed.
+        // The original image from S3 is used directly.
     }
 
     // ──────────────────────────────────────────

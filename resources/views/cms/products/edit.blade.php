@@ -218,7 +218,7 @@
                         <div class="grid grid-cols-4 sm:grid-cols-6 gap-3">
                             @foreach($product->getMedia('product-images') as $media)
                                 <div class="relative h-16 w-16 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 flex items-center justify-center">
-                                    <img src="{{ $media->getUrl('thumbnail') }}" alt="Product Image" class="object-cover w-full h-full">
+                                    <img src="{{ $media->getUrl() }}" alt="Product Image" class="object-cover w-full h-full">
                                     <div class="absolute inset-0 bg-slate-950/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                         <span class="text-[9px] px-1 py-0.5 bg-slate-950 border border-slate-850 rounded text-slate-300 font-mono">
                                             {{ number_format($media->size / 1024, 0) }} KB

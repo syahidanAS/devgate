@@ -201,7 +201,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="h-10 w-10 rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex-shrink-0 flex items-center justify-center">
                                     @if($item->product->getFirstMediaUrl('product-images'))
-                                        <img src="{{ $item->product->getFirstMediaUrl('product-images', 'thumbnail') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
+                                        <img src="{{ $item->product->getFirstMediaUrl('product-images') }}" alt="{{ $item->product->name }}" class="h-full w-full object-cover">
                                     @else
                                         <i class="fa-solid fa-microchip text-slate-400"></i>
                                     @endif
