@@ -1,5 +1,6 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import forms from '@tailwindcss/forms';
+import colors from 'tailwindcss/colors';
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -15,6 +16,10 @@ export default {
             fontFamily: {
                 sans: ['Outfit', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                indigo: colors.rose,
+                violet: colors.pink,
+            }
         },
     },
 
