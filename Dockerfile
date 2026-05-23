@@ -45,6 +45,7 @@ RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
+    libwebp-dev \
     libzip-dev \
     postgresql-dev \
     oniguruma-dev \
@@ -54,7 +55,7 @@ RUN apk add --no-cache \
 # Install PHP extensions
 # ------------------------------------------------
 RUN apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j$(nproc) \
     gd \
     pdo_pgsql \
