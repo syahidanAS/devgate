@@ -39,12 +39,7 @@
         @yield('styles')
     </head>
     <body class="antialiased min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
-        <!-- Staging Ribbon Watermark -->
-        <div class="fixed top-0 right-0 z-[99999] pointer-events-none select-none overflow-hidden w-40 h-40">
-            <div class="absolute top-8 -right-12 w-56 bg-gradient-to-r from-amber-500 via-rose-500 to-red-600 text-white text-[11px] font-black tracking-widest text-center py-1.5 shadow-lg transform rotate-45 border-y border-white/20 uppercase backdrop-blur-sm">
-                STAGING
-            </div>
-        </div>
+
         
         <!-- Cart Service Injector -->
         @inject('cartService', 'App\Services\Marketplace\CartService')
@@ -411,6 +406,10 @@
                             <p class="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">
                                 Platform terintegrasi IoT Specialist, Embedded System, Automation, dan Web Development.
                             </p>
+                            <div class="mt-2 text-sm text-slate-500 dark:text-slate-400 flex flex-col gap-1">
+                                <p><i class="fa-regular fa-envelope w-5 text-indigo-500"></i> global@devgate.my.id</p>
+                                <p><i class="fa-brands fa-whatsapp w-5 text-indigo-500"></i> +6282246297995</p>
+                            </div>
                             <div class="flex items-center gap-3 text-slate-400 dark:text-slate-500 text-lg">
                                 <a href="#" class="hover:text-indigo-500 transition-colors"><i class="fa-brands fa-github"></i></a>
                                 <a href="#" class="hover:text-indigo-500 transition-colors"><i class="fa-brands fa-linkedin"></i></a>
@@ -456,7 +455,7 @@
                     </div>
                     
                     <div class="mt-12 border-t border-slate-100 dark:border-slate-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 dark:text-slate-500">
-                        <p>&copy; {{ date('Y') }} DevGate. Hak Cipta Dilindungi.</p>
+                        <p>&copy; {{ date('Y') }} DevGate. Hak Cipta Dilindungi. <span class="ml-2 font-semibold text-indigo-500 dark:text-indigo-400">Beta Version</span></p>
                         <div class="flex gap-4 mt-2 sm:mt-0">
                             <a href="#" class="hover:underline">Kebijakan Privasi</a>
                             <a href="#" class="hover:underline">Syarat & Ketentuan</a>

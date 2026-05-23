@@ -217,12 +217,7 @@
     </style>
 </head>
 <body>
-    <!-- Staging Ribbon Watermark -->
-    <div class="fixed top-0 right-0 z-[99999] pointer-events-none select-none overflow-hidden w-40 h-40">
-        <div class="absolute top-8 -right-12 w-56 bg-gradient-to-r from-amber-500 via-rose-500 to-red-600 text-white text-[11px] font-black tracking-widest text-center py-1.5 shadow-lg transform rotate-45 border-y border-white/20 uppercase backdrop-blur-sm">
-            STAGING
-        </div>
-    </div>
+
 
 {{-- Background Scene --}}
 <div class="bg-scene">
@@ -287,7 +282,7 @@
                 @yield('content')
             </div>
             <div class="card-footer">
-                &copy; {{ date('Y') }} DevGate &nbsp;·&nbsp;
+                &copy; {{ date('Y') }} DevGate <span class="text-indigo-400 font-semibold ml-1">(Beta Version)</span> &nbsp;·&nbsp;
                 <a href="#">Kebijakan Privasi</a> &nbsp;·&nbsp;
                 <a href="#">Syarat &amp; Ketentuan</a>
             </div>

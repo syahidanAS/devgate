@@ -34,12 +34,7 @@
         @yield('styles')
     </head>
     <body class="antialiased min-h-screen bg-slate-900 text-slate-100 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
-        <!-- Staging Ribbon Watermark -->
-        <div class="fixed top-0 right-0 z-[99999] pointer-events-none select-none overflow-hidden w-40 h-40">
-            <div class="absolute top-8 -right-12 w-56 bg-gradient-to-r from-amber-500 via-rose-500 to-red-600 text-white text-[11px] font-black tracking-widest text-center py-1.5 shadow-lg transform rotate-45 border-y border-white/20 uppercase backdrop-blur-sm">
-                STAGING
-            </div>
-        </div>
+
         
         <!-- Ambient Cyberpunk Lights -->
         <div class="relative overflow-hidden min-h-screen flex">
@@ -374,7 +369,7 @@
 
                 <!-- Portal Dashboard Footer -->
                 <footer class="h-14 border-t border-slate-850 shrink-0 bg-slate-950/20 flex items-center justify-between px-6 text-xs text-slate-500">
-                    <p>&copy; {{ date('Y') }} DevGate Platform. All rights reserved.</p>
+                    <p>&copy; {{ date('Y') }} DevGate Platform. All rights reserved. <span class="ml-2 font-semibold text-indigo-400">Beta Version</span></p>
                     <p class="hidden sm:block">IoT Specialist, AI, WebDev Dashboard</p>
                 </footer>
 
