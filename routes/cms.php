@@ -63,4 +63,5 @@ Route::middleware(['auth', 'verified', '2fa', 'role:superadmin|author|admin-mark
     Route::get('/chats', [\App\Http\Controllers\CMS\ChatSessionController::class, 'index'])->name('chats.index');
     Route::get('/chats/{session}/messages', [\App\Http\Controllers\CMS\ChatSessionController::class, 'fetchMessages'])->name('chats.messages');
     Route::post('/chats/{session}/reply', [\App\Http\Controllers\CMS\ChatSessionController::class, 'reply'])->name('chats.reply');
+    Route::post('/chats/{session}/close', [\App\Http\Controllers\CMS\ChatSessionController::class, 'close'])->name('chats.close');
 });

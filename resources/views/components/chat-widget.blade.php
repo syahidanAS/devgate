@@ -68,25 +68,40 @@
         <div x-show="sessionId" style="display: none;" class="flex flex-col flex-1 h-full">
             <div class="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3" id="chat-messages-container">
                 <template x-for="msg in messages" :key="msg.id">
-                    <div :class="msg.sender_type === 'admin' ? 'flex justify-start' : 'flex justify-end'">
-                        <div :class="msg.sender_type === 'admin' ? 'bg-white text-gray-800 border border-gray-200' : 'bg-indigo-600 text-white'" class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm text-sm">
+                    <div :class="msg.sender_type === 'admin' ? 'flex justify-start' : (msg.sender_type === 'system' ? 'flex justify-center' : 'flex justify-end')">
+                        
+                        <template x-if="msg.sender_type === 'system'">
+                            <div class="bg-gray-200 text-gray-500 px-3 py-1.5 rounded-full text-[10px] font-medium border border-gray-300">
+                                <i class="fa-solid fa-circle-info mr-1"></i> <span x-text="msg.message"></span>
+                            </div>
+                        </template>
+
+                        <template x-if="msg.sender_type !== 'system'">
+                            <div :class="msg.sender_type === 'admin' ? 'bg-white text-gray-800 border border-gray-200' : 'bg-indigo-600 text-white'" class="max-w-[85%] rounded-2xl px-4 py-3 shadow-sm text-sm">
                             <template x-if="msg.product">
                                 <div class="mb-2 bg-gray-50 rounded-xl p-2 border border-gray-200 flex gap-3 items-center">
                                     <div class="w-12 h-12 rounded-lg bg-gray-200 shrink-0 overflow-hidden">
                                         <img :src="msg.product.media && msg.product.media[0] ? msg.product.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
                                     </div>
                                     <div class="flex-1 overflow-hidden">
-                                        <h4 class="font-bold text-xs truncate text-gray-800" x-text="msg.product.name"></h4>
-                                        <p class="text-xs font-semibold text-indigo-600 mt-0.5" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(msg.product.sale_price ?? msg.product.price)"></p>
+                                <template x-if="msg.product">
+                                    <div class="mb-2 bg-gray-50 rounded-xl p-2 border border-gray-200 flex gap-3 items-center">
+                                        <div class="w-12 h-12 rounded-lg bg-gray-200 shrink-0 overflow-hidden">
+                                            <img :src="msg.product.media && msg.product.media[0] ? msg.product.media[0].original_url : '/placeholder.jpg'" class="w-full h-full object-cover">
+                                        </div>
+                                        <div class="flex-1 overflow-hidden">
+                                            <h4 class="font-bold text-xs truncate text-gray-800" x-text="msg.product.name"></h4>
+                                            <p class="text-xs font-semibold text-indigo-600 mt-0.5" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(msg.product.sale_price ?? msg.product.price)"></p>
+                                        </div>
+                                        <a :href="'/shop/' + msg.product.slug" target="_blank" class="shrink-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition px-2 py-1.5 rounded text-[10px] font-bold">
+                                            Lihat
+                                        </a>
                                     </div>
-                                    <a :href="'/shop/' + msg.product.slug" target="_blank" class="shrink-0 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 transition px-2 py-1.5 rounded text-[10px] font-bold">
-                                        Lihat
-                                    </a>
-                                </div>
-                            </template>
-                            <p x-text="msg.message"></p>
-                            <span :class="msg.sender_type === 'admin' ? 'text-gray-400' : 'text-indigo-200'" class="text-[10px] mt-1.5 block text-right" x-text="formatTime(msg.created_at)"></span>
-                        </div>
+                                </template>
+                                <p x-text="msg.message"></p>
+                                <span :class="msg.sender_type === 'admin' ? 'text-gray-400' : 'text-indigo-200'" class="text-[10px] mt-1.5 block text-right" x-text="formatTime(msg.created_at)"></span>
+                            </div>
+                        </template>
                     </div>
                 </template>
                 <div x-show="messages.length === 0" class="text-center text-gray-400 text-sm mt-10">
@@ -95,29 +110,39 @@
             </div>
 
             <!-- Input Area -->
-            <div class="p-3 border-t bg-white">
-                <!-- Selected Product Preview -->
-                <template x-if="selectedProduct">
-                    <div class="mb-3 bg-indigo-50 rounded-lg p-2 border border-indigo-100 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <i class="fa-solid fa-box text-indigo-500 text-xs"></i>
-                            <div>
-                                <p class="text-[10px] text-indigo-400">Tanya Produk:</p>
-                                <p class="text-xs font-bold text-indigo-900 truncate max-w-[150px]" x-text="selectedProduct.name"></p>
-                            </div>
-                        </div>
-                        <button type="button" @click="selectedProduct = null" class="text-indigo-400 hover:text-rose-500 p-1">
-                            <i class="fa-solid fa-xmark text-xs"></i>
-                        </button>
+            <div class="p-3 border-t bg-white relative">
+                <template x-if="sessionStatus === 'closed'">
+                    <div class="bg-gray-100 text-gray-500 text-center py-2 rounded-lg text-xs border border-gray-200">
+                        Sesi obrolan ini telah diakhiri.
                     </div>
                 </template>
 
-                <form @submit.prevent="sendMessage" class="flex items-center space-x-2">
-                    <input type="text" x-model="newMessage" placeholder="Ketik pesan..." class="flex-1 rounded-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-4 py-2">
-                    <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 disabled:opacity-50">
-                        <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                    </button>
-                </form>
+                <template x-if="sessionStatus !== 'closed'">
+                    <div>
+                        <!-- Selected Product Preview -->
+                        <template x-if="selectedProduct">
+                            <div class="mb-3 bg-indigo-50 rounded-lg p-2 border border-indigo-100 flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <i class="fa-solid fa-box text-indigo-500 text-xs"></i>
+                                    <div>
+                                        <p class="text-[10px] text-indigo-400">Tanya Produk:</p>
+                                        <p class="text-xs font-bold text-indigo-900 truncate max-w-[150px]" x-text="selectedProduct.name"></p>
+                                    </div>
+                                </div>
+                                <button type="button" @click="selectedProduct = null" class="text-indigo-400 hover:text-rose-500 p-1">
+                                    <i class="fa-solid fa-xmark text-xs"></i>
+                                </button>
+                            </div>
+                        </template>
+
+                        <form @submit.prevent="sendMessage" class="flex items-center space-x-2">
+                            <input type="text" x-model="newMessage" placeholder="Ketik pesan..." class="flex-1 rounded-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm px-4 py-2">
+                            <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 text-white rounded-full p-2 hover:bg-indigo-700 disabled:opacity-50">
+                                <svg class="w-5 h-5 transform rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                </template>
             </div>
         </div>
 
@@ -179,6 +204,7 @@
             echoChannel: null,
             unreadCount: 0,
             selectedProduct: null,
+            sessionStatus: '',
 
             init() {
                 window.addEventListener('open-chat-product', (e) => {
@@ -258,6 +284,7 @@
                     }
                     const data = await response.json();
                     this.messages = data.messages || [];
+                    this.sessionStatus = data.status || '';
                     setTimeout(() => this.scrollToBottom(), 100);
                 } catch (e) {
                     console.error('Failed to load messages', e);
@@ -322,8 +349,11 @@
                 this.echoChannel = window.Echo.channel('chat.session.' + this.sessionId)
                     .listen('.NewChatMessage', (e) => {
                         // Avoid duplicating if we sent it
-                        if (e.message.sender_type === 'admin') {
+                        if (e.message.sender_type === 'admin' || e.message.sender_type === 'system') {
                             this.messages.push(e.message);
+                            if (e.message.sender_type === 'system' && e.message.message.includes('diakhiri')) {
+                                this.sessionStatus = 'closed';
+                            }
                             playWidgetSound();
                             if (!this.isOpen) {
                                 this.unreadCount++;

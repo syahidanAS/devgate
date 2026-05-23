@@ -45,7 +45,10 @@ class ChatSessionController extends Controller
     {
         $session = $this->getAuthorizedSession($sessionId);
         $messages = $session->messages()->with(['sender:id,name', 'product.media'])->orderBy('created_at', 'asc')->get();
-        return response()->json(['messages' => $messages]);
+        return response()->json([
+            'messages' => $messages,
+            'status' => $session->status
+        ]);
     }
 
     public function searchProducts(Request $request)
@@ -95,6 +98,27 @@ class ChatSessionController extends Controller
         $session->touch();
 
         return response()->json(['message' => $message]);
+    }
+
+    public function close($sessionId)
+    {
+        $session = $this->getAuthorizedSession($sessionId);
+        
+        if ($session->status === 'closed') {
+            return response()->json(['message' => 'Session already closed.'], 400);
+        }
+
+        $session->update(['status' => 'closed']);
+
+        // Create a system message
+        $message = $session->messages()->create([
+            'sender_type' => 'system',
+            'message' => 'Sesi obrolan ini telah diakhiri oleh Admin.',
+        ]);
+
+        broadcast(new NewChatMessage($message))->toOthers();
+
+        return response()->json(['success' => true, 'message' => $message]);
     }
 
     private function getAuthorizedSession($sessionId)

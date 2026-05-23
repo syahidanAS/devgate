@@ -48,7 +48,10 @@ class ChatController extends Controller
         }
 
         $messages = $session->messages()->with(['sender:id,name', 'product.media'])->orderBy('created_at', 'asc')->get();
-        return response()->json(['messages' => $messages]);
+        return response()->json([
+            'messages' => $messages,
+            'status' => $session->status
+        ]);
     }
 
     public function sendMessage(Request $request, $sessionId)

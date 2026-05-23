@@ -92,16 +92,29 @@
                         </div>
                         <div>
                             <h3 class="text-white font-bold text-sm" x-text="activeSessionName"></h3>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-widest" x-text="'Kategori: ' + activeSessionCategory"></p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-widest" x-text="'Kategori: ' + activeSessionCategory + ' • ' + (activeSessionStatus === 'closed' ? 'DITUTUP' : 'AKTIF')"></p>
                         </div>
                     </div>
+                    <template x-if="activeSessionStatus !== 'closed'">
+                        <button @click="closeSession" class="text-xs bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/30 px-3 py-1.5 rounded-lg transition-all font-bold">
+                            <i class="fa-solid fa-power-off mr-1"></i> Akhiri Obrolan
+                        </button>
+                    </template>
                 </div>
 
                 <!-- Messages Area -->
                 <div class="flex-1 overflow-y-auto p-6 space-y-4" id="admin-chat-messages">
                     <template x-for="msg in messages" :key="msg.id">
-                        <div :class="msg.sender_type === 'admin' ? 'flex justify-end' : 'flex justify-start'">
-                            <div :class="msg.sender_type === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'" class="max-w-[70%] rounded-2xl px-5 py-3 shadow-lg text-sm leading-relaxed">
+                        <div :class="msg.sender_type === 'admin' ? 'flex justify-end' : (msg.sender_type === 'system' ? 'flex justify-center' : 'flex justify-start')">
+                            
+                            <template x-if="msg.sender_type === 'system'">
+                                <div class="bg-slate-800/80 backdrop-blur text-slate-400 px-4 py-2 rounded-full text-xs font-medium border border-slate-700/50">
+                                    <i class="fa-solid fa-circle-info mr-1"></i> <span x-text="msg.message"></span>
+                                </div>
+                            </template>
+
+                            <template x-if="msg.sender_type !== 'system'">
+                                <div :class="msg.sender_type === 'admin' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-slate-200 border border-slate-700'" class="max-w-[70%] rounded-2xl px-5 py-3 shadow-lg text-sm leading-relaxed">
                                 <template x-if="msg.product">
                                     <div class="mb-3 bg-white/10 rounded-xl p-3 border border-white/20 flex gap-3 items-center">
                                         <div class="w-12 h-12 rounded-lg bg-slate-200 shrink-0 overflow-hidden">
@@ -126,33 +139,43 @@
 
                 <!-- Input Area -->
                 <div class="p-4 border-t border-slate-800 bg-slate-900/80 backdrop-blur-md shrink-0 relative">
-                    <!-- Selected Product Preview -->
-                    <template x-if="selectedProduct">
-                        <div class="mb-3 bg-slate-800 rounded-xl p-3 border border-slate-700 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <i class="fa-solid fa-box text-indigo-400"></i>
-                                <div>
-                                    <p class="text-xs text-slate-400">Melampirkan Produk:</p>
-                                    <p class="text-sm font-bold text-white truncate" x-text="selectedProduct.name"></p>
-                                </div>
-                            </div>
-                            <button type="button" @click="selectedProduct = null" class="text-slate-400 hover:text-red-400 p-2">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                    <template x-if="activeSessionStatus === 'closed'">
+                        <div class="bg-slate-800/50 text-slate-400 text-center py-3 rounded-xl border border-slate-800 text-sm">
+                            Sesi obrolan ini telah ditutup dan tidak dapat menerima pesan baru.
                         </div>
                     </template>
 
-                    <form @submit.prevent="sendMessage" class="flex gap-3">
-                        <button type="button" @click="showProductModal = true" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 rounded-xl px-4 flex items-center justify-center transition-all" title="Lampirkan Produk">
-                            <i class="fa-solid fa-bag-shopping"></i>
-                        </button>
-                        <input type="text" x-model="newMessage" placeholder="Ketik balasan..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-600">
-                        <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 font-bold flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fa-solid fa-paper-plane mr-2" x-show="!sending"></i>
-                            <i class="fa-solid fa-spinner fa-spin mr-2" x-show="sending" style="display: none;"></i>
-                            Kirim
-                        </button>
-                    </form>
+                    <template x-if="activeSessionStatus !== 'closed'">
+                        <div>
+                            <!-- Selected Product Preview -->
+                            <template x-if="selectedProduct">
+                                <div class="mb-3 bg-slate-800 rounded-xl p-3 border border-slate-700 flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <i class="fa-solid fa-box text-indigo-400"></i>
+                                        <div>
+                                            <p class="text-xs text-slate-400">Melampirkan Produk:</p>
+                                            <p class="text-sm font-bold text-white truncate" x-text="selectedProduct.name"></p>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="selectedProduct = null" class="text-slate-400 hover:text-red-400 p-2">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                            </template>
+
+                            <form @submit.prevent="sendMessage" class="flex gap-3">
+                                <button type="button" @click="showProductModal = true" class="bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 rounded-xl px-4 flex items-center justify-center transition-all" title="Lampirkan Produk">
+                                    <i class="fa-solid fa-bag-shopping"></i>
+                                </button>
+                                <input type="text" x-model="newMessage" placeholder="Ketik balasan..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-600">
+                                <button type="submit" :disabled="(!newMessage.trim() && !selectedProduct) || sending" class="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 font-bold flex items-center justify-center transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fa-solid fa-paper-plane mr-2" x-show="!sending"></i>
+                                    <i class="fa-solid fa-spinner fa-spin mr-2" x-show="sending" style="display: none;"></i>
+                                    Kirim
+                                </button>
+                            </form>
+                        </div>
+                    </template>
                 </div>
             </div>
         </template>
@@ -223,6 +246,7 @@
             activeSessionId: null,
             activeSessionName: '',
             activeSessionCategory: '',
+            activeSessionStatus: '',
             messages: [],
             newMessage: '',
             loading: false,
@@ -289,6 +313,7 @@
                 this.activeSessionId = id;
                 this.activeSessionName = name;
                 this.activeSessionCategory = category;
+                this.activeSessionStatus = '';
                 this.messages = [];
                 this.loading = true;
 
@@ -296,6 +321,7 @@
                     const response = await fetch(`/cms/chats/${id}/messages`);
                     const data = await response.json();
                     this.messages = data.messages || [];
+                    this.activeSessionStatus = data.status;
                     setTimeout(() => this.scrollToBottom(), 50);
                     
                     this.listenToPusher();
@@ -370,6 +396,29 @@
                 this.sending = false;
             },
 
+            async closeSession() {
+                if (!confirm('Anda yakin ingin mengakhiri obrolan ini? Pelanggan tidak akan bisa mengirim pesan lagi.')) return;
+                
+                try {
+                    const response = await fetch(`/cms/chats/${this.activeSessionId}/close`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    if (data.success) {
+                        this.activeSessionStatus = 'closed';
+                        this.messages.push(data.message);
+                        setTimeout(() => this.scrollToBottom(), 50);
+                    }
+                } catch (e) {
+                    console.error('Failed to close session', e);
+                }
+            },
+
             listenToPusher() {
                 if (!window.Echo) return;
                 
@@ -377,6 +426,9 @@
                     .listen('.NewChatMessage', (e) => {
                         if (e.message.sender_type !== 'admin') {
                             this.messages.push(e.message);
+                            if (e.message.sender_type === 'system' && e.message.message.includes('diakhiri')) {
+                                this.activeSessionStatus = 'closed';
+                            }
                             setTimeout(() => this.scrollToBottom(), 50);
                             playChatSound(); // Play sound even if active
                         }
