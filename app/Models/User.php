@@ -27,6 +27,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail
         'bio',
         'social_links',
         'is_active',
+        'email_verified_at',
     ];
 
     protected $hidden = [
