@@ -78,8 +78,12 @@ class ChatController extends Controller
 
         $message->load(['sender:id,name', 'product.media']);
 
-        // Broadcast event
-        broadcast(new NewChatMessage($message))->toOthers();
+        try {
+            // Broadcast event
+            broadcast(new NewChatMessage($message))->toOthers();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to broadcast chat message: ' . $e->getMessage());
+        }
 
         // Send Telegram Notification
         (new AdminTelegramChatNotification($message))->sendToTelegram();

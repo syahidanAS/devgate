@@ -86,7 +86,11 @@ class ChatSessionController extends Controller
         $message->load(['sender:id,name', 'product.media']);
 
         // Broadcast to customer
-        broadcast(new NewChatMessage($message))->toOthers();
+        try {
+            broadcast(new NewChatMessage($message))->toOthers();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to broadcast chat reply: ' . $e->getMessage());
+        }
 
         // Send Email Notification
         $email = $session->user_id ? $session->user->email : $session->guest_email;
@@ -116,7 +120,11 @@ class ChatSessionController extends Controller
             'message' => 'Sesi obrolan ini telah diakhiri oleh Admin.',
         ]);
 
-        broadcast(new NewChatMessage($message))->toOthers();
+        try {
+            broadcast(new NewChatMessage($message))->toOthers();
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to broadcast chat close: ' . $e->getMessage());
+        }
 
         return response()->json(['success' => true, 'message' => $message]);
     }
