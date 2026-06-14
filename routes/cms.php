@@ -8,6 +8,8 @@ use App\Http\Controllers\CMS\OrderController;
 use App\Http\Controllers\CMS\UserController;
 use App\Http\Controllers\CMS\MediaController;
 use App\Http\Controllers\CMS\VideoController;
+use App\Http\Controllers\CMS\FirmwareProjectController;
+use App\Http\Controllers\CMS\FirmwareFileController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'verified', '2fa', 'role:superadmin|author|admin-marketplace'])->prefix('cms')->as('cms.')->group(function () {
@@ -36,6 +38,16 @@ Route::middleware(['auth', 'verified', '2fa', 'role:superadmin|author|admin-mark
         Route::patch('videos/{video}/move-up',            [VideoController::class, 'moveUp'])->name('videos.moveUp');
         Route::patch('videos/{video}/move-down',          [VideoController::class, 'moveDown'])->name('videos.moveDown');
         Route::patch('videos/{video}/refresh-thumbnail',  [VideoController::class, 'refreshThumbnail'])->name('videos.refreshThumbnail');
+    });
+
+    // CMS Firmware & Flasher Management (Authors & Superadmins)
+    Route::middleware('role_or_permission:superadmin|author')->group(function () {
+        Route::resource('firmware-projects', FirmwareProjectController::class);
+        Route::post('firmware-files', [FirmwareFileController::class, 'store'])->name('firmware-files.store');
+        Route::get('firmware-files/{firmware_file}/edit', [FirmwareFileController::class, 'edit'])->name('firmware-files.edit');
+        Route::put('firmware-files/{firmware_file}', [FirmwareFileController::class, 'update'])->name('firmware-files.update');
+        Route::patch('firmware-files/{firmware_file}/toggle', [FirmwareFileController::class, 'toggleActive'])->name('firmware-files.toggle');
+        Route::delete('firmware-files/{firmware_file}', [FirmwareFileController::class, 'destroy'])->name('firmware-files.destroy');
     });
 
     // CMS Products CRUD (Store Managers & Superadmins)

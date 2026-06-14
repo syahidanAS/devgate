@@ -81,6 +81,9 @@
                             <a href="{{ route('forum.index') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors {{ request()->routeIs('forum.*') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : '' }}">
                                 <i class="fa-solid fa-comments mr-1"></i> Forum Diskusi
                             </a>
+                            <a href="{{ route('flasher.index') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors {{ request()->routeIs('flasher.*') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : '' }}">
+                                <i class="fa-solid fa-bolt mr-1"></i> Web Flasher
+                            </a>
                         </nav>
                     </div>
 
@@ -319,6 +322,9 @@
                         </a>
                         <a href="{{ route('forum.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-all">
                             <i class="fa-solid fa-comments text-indigo-500 w-5"></i> Forum Diskusi
+                        </a>
+                        <a href="{{ route('flasher.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-xl text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-all">
+                            <i class="fa-solid fa-bolt text-indigo-500 w-5"></i> Web Flasher
                         </a>
                         
                         <div class="h-px bg-slate-100 dark:bg-slate-800 my-2"></div>

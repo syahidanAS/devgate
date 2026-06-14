@@ -26,5 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->render(function (\Illuminate\Http\Exceptions\PostTooLargeException $e, $request) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Ukuran file unggahan terlalu besar! Silakan sesuaikan konfigurasi "upload_max_filesize" dan "post_max_size" pada file php.ini Anda.');
+        });
     })->create();

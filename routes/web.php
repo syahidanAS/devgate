@@ -59,6 +59,9 @@ Route::get('/verified', function () {
 // Newsletter Subscription Route
 Route::post('/newsletter/subscribe', [\App\Http\Controllers\NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 
+// Public Web Flasher Page
+Route::get('/flasher', [\App\Http\Controllers\FlasherController::class, 'index'])->name('flasher.index');
+
 // Load Modular Domains Route Files
 require __DIR__.'/blog.php';
 require __DIR__.'/marketplace.php';

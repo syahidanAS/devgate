@@ -122,6 +122,13 @@
                             <i class="fa-solid fa-clapperboard text-base shrink-0"></i>
                             <span class="transition-opacity duration-300" :class="{ 'opacity-100': sidebarOpen, 'opacity-0 w-0 pointer-events-none': !sidebarOpen }">Kelola Video</span>
                         </a>
+                        <div class="pt-4 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 transition-all duration-300 px-3" :class="{ 'opacity-100': sidebarOpen, 'opacity-0 h-0 py-0 overflow-hidden': !sidebarOpen }">
+                            Flasher Firmware
+                        </div>
+                        <a href="{{ route('cms.firmware-projects.index') }}" class="flex items-center gap-3.5 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all border border-transparent {{ request()->routeIs('cms.firmware-projects.*') || request()->routeIs('cms.firmware-files.*') ? 'bg-indigo-600/20 border-indigo-500/30 text-indigo-400' : 'text-slate-400 hover:text-white hover:bg-slate-900/60' }}">
+                            <i class="fa-solid fa-bolt text-base shrink-0 text-amber-500"></i>
+                            <span class="transition-opacity duration-300" :class="{ 'opacity-100': sidebarOpen, 'opacity-0 w-0 pointer-events-none': !sidebarOpen }">Kelola Firmware</span>
+                        </a>
                     @endhasanyrole
 
 
